@@ -1,14 +1,4 @@
 "use client";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
@@ -27,15 +17,53 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { useContext, useRef, useState } from "react";
-import { TableContext } from "@/contexts/tableContext";
-import { InboxTypes } from "@/types";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+import { useContext, useRef, useState, useEffect } from "react";
+import { InboxTypes, useContactsTableContext } from "@/contexts/tableContext";
 
 export default function Home() {
-  const { rows, addRow } = useContext(TableContext);
+  const { rows, addRow } = useContactsTableContext();
   const nameRef = useRef<HTMLInputElement>(null);
   const companyRef = useRef<HTMLInputElement>(null);
   const [type, setType] = useState<InboxTypes | null>(null);
+
+  const addFetchedRowHandler = async () => {
+    const contact = await fetch("https://randomuser.me/api/").then((response) =>
+      response.json()
+    );
+    addRow({
+      name: contact.results[0].name.first,
+      company: "AgentProd",
+      type: InboxTypes["APPROVE_FIRST_CONTACT_EMAIL"],
+    });
+  };
+
+  const bulkFetchAddRows = async () => {
+    const allContacts = [];
+    for (let i = 0; i < 5; i++) {
+      const contact = await fetch("https://randomuser.me/api/").then(
+        (response) => response.json()
+      );
+      allContacts.push(contact);
+    }
+    console.log("all contacts:", allContacts);
+    allContacts.forEach((contact) => {
+      addRow({
+        name: contact.results[0].name.first,
+        company: "AgentProd",
+        type: InboxTypes["APPROVE_FIRST_CONTACT_EMAIL"],
+      });
+    });
+  };
 
   const addRowHandler = () => {
     console.log(nameRef.current?.value, companyRef.current?.value, type);
@@ -43,7 +71,7 @@ export default function Home() {
       addRow({
         name: nameRef.current.value,
         company: companyRef.current.value,
-        type: InboxTypes[type],
+        type,
       });
       nameRef.current.value = "";
       companyRef.current.value = "";
@@ -52,6 +80,8 @@ export default function Home() {
     console.log("addRowHandler");
     console.log(rows);
   };
+
+  console.log(InboxTypes);
 
   return (
     <div className="flex">
@@ -64,26 +94,55 @@ export default function Home() {
           </Popover>
         </div>
         <ContactsTable />
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#">1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext href="#" />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+
         <div className="w-full h-10">
           <input type="text" placeholder="Name" ref={nameRef} />
           <input type="text" placeholder="Company" ref={companyRef} />
-          <Select onValueChange={(value) => setType(value as InboxTypes)}>
+          <Select
+            onValueChange={(value) => {
+              setType(value as InboxTypes);
+            }}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="APPROVE_FIRST_CONTACT_EMAIL">
+              <SelectItem value={"APPROVE_FIRST_CONTACT_EMAIL"}>
                 Approve first contact email
               </SelectItem>
-              <SelectItem value="APPROVE_REPLY_EMAIL">
+              <SelectItem value={"APPROVE_REPLY_EMAIL"}>
                 Approve reply email
               </SelectItem>
-              <SelectItem value="RESPONDED_TO_ASKED_QUESTIONS">
+              <SelectItem value={"RESPONDED_TO_ASKED_QUESTIONS"}>
                 Responded to asked questions in reply
               </SelectItem>
             </SelectContent>
           </Select>
-          <button onClick={addRowHandler}>Create new row</button>
+          <div>
+            <button onClick={addRowHandler}>Create new row</button>
+          </div>
+          <div>
+            <button onClick={addFetchedRowHandler}>Fetch new contact</button>
+          </div>
+          <div>
+            <button onClick={bulkFetchAddRows}>Bulk fetch new contacts</button>
+          </div>
         </div>
       </div>
       <div className="w-1/5 flex-col border-l h-screen border-x-gray-800 flex p-2 text-sm">

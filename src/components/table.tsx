@@ -1,7 +1,11 @@
 "use client";
 import { useContext } from "react";
-import { InboxTypes, InboxRow, InboxHeader } from "@/types";
-import { TableContext } from "@/contexts/tableContext";
+import { InboxHeader } from "@/types";
+import {
+  InboxTypes,
+  Contact,
+  useContactsTableContext,
+} from "@/contexts/tableContext";
 import {
   Table,
   TableBody,
@@ -13,7 +17,7 @@ import {
 } from "@/components/ui/table";
 
 const ContactsTable = () => {
-  const { rows } = useContext(TableContext);
+  const { rows } = useContactsTableContext();
 
   const tableHead: Record<keyof InboxHeader, string> = {
     contact: "Contact",

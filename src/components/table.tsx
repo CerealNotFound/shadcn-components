@@ -1,11 +1,5 @@
-"use client";
-import { useContext } from "react";
 import { InboxHeader } from "@/types";
-import {
-  InboxTypes,
-  Contact,
-  useContactsTableContext,
-} from "@/contexts/tableContext";
+import { useContactsTableContext } from "@/contexts/tableContext";
 import {
   Table,
   TableBody,

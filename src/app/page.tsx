@@ -27,7 +27,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import { useContext, useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { InboxTypes, useContactsTableContext } from "@/contexts/tableContext";
 
 export default function Home() {

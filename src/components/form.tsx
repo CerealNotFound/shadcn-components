@@ -22,26 +22,61 @@ const FormSchema = z.object({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters.",
   }),
+  field2: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
+  field3: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
+  field4: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
+  field5: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
 });
 
 export const SearchForm = () => {
   const { toast } = useToast();
-  const prevInputValue = useRef("");
+  const prevInputValue = useRef({
+    username: "",
+    field2: "",
+    field3: "",
+    field4: "",
+    field5: "",
+  });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       username: "",
+      field2: "",
+      field3: "",
+      field4: "",
+      field5: "",
     },
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    let shouldCallAPI = false;
     console.log(data);
-    if (data.username !== prevInputValue.current) {
-      console.log(`Calling API with input value: ${data.username}`);
-      prevInputValue.current = data.username;
+
+    for (const field in data) {
+      if (
+        data[field as keyof typeof data] !==
+        prevInputValue.current[field as keyof typeof prevInputValue.current]
+      ) {
+        prevInputValue.current[field as keyof typeof prevInputValue.current] =
+          data[field as keyof typeof data];
+        shouldCallAPI = true;
+      }
+    }
+
+    if (shouldCallAPI) {
+      console.log("Calling API with input value: ", data);
+      shouldCallAPI = false;
     } else {
-      console.log("Input value was not changed. Not calling the API");
+      console.log("No need to call API with input value: ", data);
     }
 
     toast({
@@ -88,6 +123,71 @@ export const SearchForm = () => {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="field2"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Field 2</FormLabel>
+                <FormControl>
+                  <Input placeholder="shadcn" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your public display name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="field3"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Field 3</FormLabel>
+                <FormControl>
+                  <Input placeholder="shadcn" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your public display name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="field4"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Field 4</FormLabel>
+                <FormControl>
+                  <Input placeholder="shadcn" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your public display name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="field5"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Field 5</FormLabel>
+                <FormControl>
+                  <Input placeholder="shadcn" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your public display name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <Button type="submit">Submit</Button>
         </form>
       </Form>

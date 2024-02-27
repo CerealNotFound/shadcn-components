@@ -26,7 +26,7 @@ export interface ContactsTableState {
 
 const defaultContactState: ContactsTableState = {
   rows: [defaultContact],
-  addRow: (contact: Contact) => {},
+  addRow: () => {},
 };
 
 export const ContactsTableContext =

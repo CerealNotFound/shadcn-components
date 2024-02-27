@@ -10,8 +10,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const ContactsTable = () => {
+const ContactsTable = ({
+  currentPage,
+  itemsPerPage,
+}: {
+  currentPage: number;
+  itemsPerPage: number;
+}): JSX.Element => {
   const { rows } = useContactsTableContext();
+
+  const end = currentPage * itemsPerPage;
+  const start = end - itemsPerPage;
+  const currentItems = rows.slice(start, end);
+  console.log(start, end);
 
   const tableHead: Record<keyof InboxHeader, string> = {
     contact: "Contact",
@@ -34,7 +45,7 @@ const ContactsTable = () => {
           <TableCell>Fortus Group</TableCell>
           <TableCell>Approve reply emails</TableCell>
         </TableRow>
-        {rows.map((row, index) => (
+        {currentItems.map((row, index) => (
           <TableRow key={index}>
             <TableCell className="font-medium">{row.name}</TableCell>
             <TableCell>{row.company}</TableCell>

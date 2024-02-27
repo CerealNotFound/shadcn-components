@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
+
 import "./globals.css";
 import { ContactsTableContextProvider } from "@/contexts/tableContext";
 
@@ -18,7 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <ContactsTableContextProvider>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <main>{children}</main>
+          <Toaster />
+        </body>
       </ContactsTableContextProvider>
     </html>
   );

@@ -7,6 +7,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { Button } from "@/components/ui/button";
+
 import ContactsTable from "@/components/table";
 
 import {
@@ -18,20 +20,22 @@ import {
 } from "@/components/ui/select";
 
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+} from "@radix-ui/react-icons";
 
 import { useRef, useState } from "react";
 import { InboxTypes, useContactsTableContext } from "@/contexts/tableContext";
 
 export default function Home() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const { rows, addRow } = useContactsTableContext();
+
+  const lastPage = Math.ceil(rows.length / itemsPerPage);
   const nameRef = useRef<HTMLInputElement>(null);
   const companyRef = useRef<HTMLInputElement>(null);
   const [type, setType] = useState<InboxTypes | null>(null);
@@ -78,10 +82,23 @@ export default function Home() {
       setType(null);
     }
     console.log("addRowHandler");
-    console.log(rows);
   };
 
-  console.log(InboxTypes);
+  const nextPage = () => {
+    setCurrentPage(currentPage + 1);
+  };
+
+  const previousPage = () => {
+    setCurrentPage(currentPage - 1);
+  };
+
+  const canNextPage = () => {
+    return currentPage < lastPage;
+  };
+
+  const canPreviousPage = () => {
+    return currentPage > 1;
+  };
 
   return (
     <div className="flex">
@@ -93,24 +110,72 @@ export default function Home() {
             <PopoverContent>Place content for the popover here.</PopoverContent>
           </Popover>
         </div>
-        <ContactsTable />
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href="#" />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-
+        <ContactsTable currentPage={currentPage} itemsPerPage={itemsPerPage} />
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center space-x-6 lg:space-x-8">
+            <div className="flex items-center space-x-2">
+              <p className="text-sm font-medium">Rows per page</p>
+              <Select
+                value={`${itemsPerPage}`}
+                onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px]">
+                  <SelectValue placeholder={itemsPerPage} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+            Page {currentPage} of {lastPage}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex"
+              onClick={() => setCurrentPage(1)}
+              disabled={!canPreviousPage()}
+            >
+              <span className="sr-only">Go to first page</span>
+              <DoubleArrowLeftIcon className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={() => previousPage()}
+              disabled={!canPreviousPage()}
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeftIcon className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={() => nextPage()}
+              disabled={!canNextPage()}
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRightIcon className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex"
+              onClick={() => setCurrentPage(lastPage)}
+              disabled={!canNextPage()}
+            >
+              <span className="sr-only">Go to last page</span>
+              <DoubleArrowRightIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
         <div className="w-full h-10">
           <input type="text" placeholder="Name" ref={nameRef} />
           <input type="text" placeholder="Company" ref={companyRef} />
@@ -123,13 +188,13 @@ export default function Home() {
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={"APPROVE_FIRST_CONTACT_EMAIL"}>
+              <SelectItem value={InboxTypes.APPROVE_FIRST_CONTACT_EMAIL}>
                 Approve first contact email
               </SelectItem>
-              <SelectItem value={"APPROVE_REPLY_EMAIL"}>
+              <SelectItem value={InboxTypes.APPROVE_REPLY_EMAIL}>
                 Approve reply email
               </SelectItem>
-              <SelectItem value={"RESPONDED_TO_ASKED_QUESTIONS"}>
+              <SelectItem value={InboxTypes.RESPONDED_TO_ASKED_QUESTIONS}>
                 Responded to asked questions in reply
               </SelectItem>
             </SelectContent>
